@@ -503,6 +503,12 @@ bool SPIRVRegularizeLLVMBase::regularize() {
               lowerUMulWithOverflow(II);
           }
         }
+        
+        if (auto FI = dyn_cast<FreezeInst>(&II)) {
+          FI->replaceAllUsesWith(FI->getOperand(0));
+          FI->dropAllReferences();
+          ToErase.push_back(FI);
+        }
 
         // Translator treats i1 as boolean, but bit instructions take
         // a scalar/vector integers, so we have to extend such arguments
